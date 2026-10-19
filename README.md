@@ -13,6 +13,26 @@ GlobalFoundries' 180nm MCU process, a fully open-source CMOS technology (built o
 [![PRs](https://github.com/gdsfactory/gf180mcu/raw/badges/prs.svg)](https://github.com/gdsfactory/gf180mcu/pulls)
 <!-- BADGES:END -->
 
+## Fork for gf180-tcad
+
+This is [mithro/gf180mcu](https://github.com/mithro/gf180mcu), a fork of
+[gdsfactory/gf180mcu](https://github.com/gdsfactory/gf180mcu) (forked at upstream `main`
+[96b7324](https://github.com/gdsfactory/gf180mcu/commit/96b7324d85df05704f68c1370c175627d0a88034))
+maintained for [gf180-tcad](https://github.com/mithro/gf180-tcad), which compares TCAD against
+the PDK SPICE models for GF180MCU 5V devices. gf180-tcad's dev-HEAD TCAD image installs this
+PDK together with gdsfactory's development HEAD (10.x), which upstream's `main` does not yet
+import under; the fork carries the fixes needed for that.
+
+- All work happens on `gf180/<topic>` branches with pull requests inside this fork (base
+  `mithro/gf180mcu:main`).
+- Upstream (gdsfactory/gf180mcu) is **read-only** for this fork: no pushes, pull requests,
+  issues or comments are made there.
+- Fork CI runs only `.github/workflows/test.yml`, on GitHub-hosted runners with no secrets. The
+  upstream workflows are deleted: they call reusable workflows that need upstream secrets
+  (`GFP_API_KEY`, `ANTHROPIC_API_KEY`, AWS roles) or publish (PyPI release, pages, badges,
+  dependabot auto-merge), and this fork never releases or publishes.
+- The fork keeps the upstream Apache-2.0 licence.
+
 
 GlobalFoundries 180nm MCU based on [Google open source PDK](https://github.com/google/globalfoundries-pdk-libs-gf180mcu_fd_pr)
 
