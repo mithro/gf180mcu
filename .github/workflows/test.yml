@@ -1,0 +1,47 @@
+name: Test (gf180-tcad fork)
+# mithro/gf180mcu fork (for gf180-tcad, https://github.com/mithro/gf180-tcad). The fork's only
+# workflow: GitHub-hosted runners, no secrets, read-only token, nothing published. It runs the
+# fork's own regression tests (tests/test_gf180tcad_*.py) under the gdsfactory release this PDK
+# was made for (9.51.0) and under gdsfactory's development HEAD (10.0.0rc0, the commit
+# gf180-tcad's dev-HEAD image uses). Upstream's own suite needs the 4.8 GB standard-cell
+# submodules and is run locally instead (see the pull requests).
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        gdsfactory:
+          - name: "9.51.0"
+            spec: "gdsfactory==9.51.0"
+          - name: "10.0.0rc0"
+            spec: "gdsfactory @ https://github.com/gdsfactory/gdsfactory/archive/8b6fe0ae8db7eac245a9b67d1fece75fc8d3aa6a.tar.gz"
+    name: test (gdsfactory ${{ matrix.gdsfactory.name }})
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v7
+      - name: Install
+        run: |
+          uv venv --python 3.13 .venv
+          uv pip install --python .venv/bin/python -e . "${{ matrix.gdsfactory.spec }}" pytest pytest-regressions
+          .venv/bin/python -c "import gdsfactory; print('gdsfactory', gdsfactory.__version__)"
+      - name: Test
+        env:
+          PDK: gf180mcu
+        run: .venv/bin/python -m pytest -v -p no:cacheprovider tests/test_gf180tcad_*.py
