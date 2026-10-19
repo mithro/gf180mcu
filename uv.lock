@@ -1077,7 +1077,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "gdsfactory", specifier = ">=9.45,<=9.51" },
+    { name = "gdsfactory", specifier = ">=9.45,<11" },
     { name = "jupyter", marker = "extra == 'docs'" },
     { name = "kwasm", marker = "extra == 'docs'" },
     { name = "mkdocs-material", marker = "extra == 'docs'" },
