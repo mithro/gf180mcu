@@ -16,6 +16,18 @@ from gf180mcu.layers import LAYER, LAYER_STACK, LAYER_VIEWS  # noqa: F401
 
 cross_sections: dict[str, Callable[..., CrossSection]] = {}
 _cross_section_default_names: dict[str, str] = {}
+# Registered functions whose default cross-section has not been built yet. They are built on the
+# first call of any registered function, not at import: building a cross-section looks its layer
+# up in the active PDK, and from gdsfactory 10 that lookup activates $PDK, which is this package,
+# still half-imported (a circular import).
+_pending_default_names: list[Callable[..., CrossSection]] = []
+
+
+def _register_default_names() -> None:
+    """Build the default cross-section of every pending function, in registration order."""
+    while _pending_default_names:
+        func = _pending_default_names.pop(0)
+        _cross_section_default_names[func().name] = func.__name__
 
 
 def xsection(func: Callable[..., CrossSection]) -> Callable[..., CrossSection]:
@@ -29,11 +41,11 @@ def xsection(func: Callable[..., CrossSection]) -> Callable[..., CrossSection]:
             return gf.cross_section.cross_section(width=width, radius=radius)
     ```
     """
-    default_xs = func()
-    _cross_section_default_names[default_xs.name] = func.__name__
+    _pending_default_names.append(func)
 
     @wraps(func)
     def newfunc(**kwargs: Any) -> CrossSection:
+        _register_default_names()
         xs = func(**kwargs)
         if xs.name in _cross_section_default_names:
             xs._name = _cross_section_default_names[xs.name]
