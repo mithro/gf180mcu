@@ -154,3 +154,6 @@ test_diffs/
 
 *.gds
 *.oas
+
+# gf180-tcad fork: reference GDS files of the regression tests (tests/test_gf180tcad_gdsfactory10.py)
+!tests/gf180tcad_ref/*.gds
